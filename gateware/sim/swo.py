@@ -153,6 +153,19 @@ class SWOTestCase(ToriiTestCase):
 			yield from self.step(halfBitPeriod)
 			assert (yield swo.swo.o) == 0
 
+	def trigger(self):
+		yield
+		assert (yield led0.o) == 0
+		# Ensure that the state machine is halted pending trigger
+		yield from self.step(5)
+		assert (yield led0.o) == 0
+		# Proceed through the '1' bit and to the middle of the next '0'
+		yield swo.trigger.i.eq((yield ~swo.trigger.i))
+		yield
+		assert (yield led0.o) == 0
+		yield from self.step(2)
+		assert (yield led0.o) == 1
+
 	@ToriiTestCase.simulation
 	@ToriiTestCase.sync_domain(domain = 'sync')
 	def testTriggered(self):
@@ -180,7 +193,8 @@ class SWOTestCase(ToriiTestCase):
 		assert (yield swo.swo.o) == 0
 		yield
 		assert (yield swo.swo.o) == 1
-		# Now check we get a complete start bit and the state machine then stops on the rising edge of the next ('1') bit
+		# Now check we get a complete start bit and the state machine then stops
+		# on the rising edge of the next ('1') bit
 		yield from self.step(halfBitPeriod - 2)
 		assert (yield led0.o) == 1
 		assert (yield swo.swo.o) == 1
@@ -192,5 +206,113 @@ class SWOTestCase(ToriiTestCase):
 		yield
 		assert (yield led0.o) == 1
 		assert (yield swo.swo.o) == 1
+		# Next comes a 1 -> 0 sequence
+		yield from self.trigger()
+		yield from self.step(halfBitPeriod - 4)
+		assert (yield led0.o) == 1
+		assert (yield swo.swo.o) == 1
 		yield
+		assert (yield swo.swo.o) == 0
+		yield from self.step(halfBitPeriod - 2)
+		assert (yield led0.o) == 1
+		assert (yield swo.swo.o) == 0
+		yield from self.step(halfBitPeriod - 1)
+		assert (yield led0.o) == 1
+		assert (yield swo.swo.o) == 0
+		yield
+		assert (yield led0.o) == 1
+		assert (yield swo.swo.o) == 1
+		# There are now 6 '0' bits that follow
+		for bit in range(6):
+			yield from self.trigger()
+			yield from self.step(halfBitPeriod - 4)
+			assert (yield led0.o) == 1
+			assert (yield swo.swo.o) == 1
+			yield
+			assert (yield led0.o) == 1
+			assert (yield swo.swo.o) == 0
+			yield from self.step(halfBitPeriod - 2)
+			assert (yield led0.o) == 1
+			assert (yield swo.swo.o) == 0
+			yield
+			assert (yield led0.o) == 1
+			assert (yield swo.swo.o) == 1
+		# Now we get a 0 -> 1 -> 0 sequence
+		yield from self.trigger()
+		yield from self.step(halfBitPeriod - 4)
+		assert (yield led0.o) == 1
+		assert (yield swo.swo.o) == 1
+		yield from self.step(halfBitPeriod - 1)
+		assert (yield led0.o) == 1
+		assert (yield swo.swo.o) == 1
+		yield
+		assert (yield led0.o) == 1
+		assert (yield swo.swo.o) == 0
+		yield from self.step(halfBitPeriod - 2)
+		assert (yield led0.o) == 1
+		assert (yield swo.swo.o) == 0
+		yield from self.step(halfBitPeriod - 1)
+		assert (yield led0.o) == 1
+		assert (yield swo.swo.o) == 0
+		yield
+		assert (yield led0.o) == 1
+		assert (yield swo.swo.o) == 1
+		# Another 4 '0' bits follow after that
+		for bit in range(4):
+			yield from self.trigger()
+			yield from self.step(halfBitPeriod - 4)
+			assert (yield led0.o) == 1
+			assert (yield swo.swo.o) == 1
+			yield
+			assert (yield led0.o) == 1
+			assert (yield swo.swo.o) == 0
+			yield from self.step(halfBitPeriod - 2)
+			assert (yield led0.o) == 1
+			assert (yield swo.swo.o) == 0
+			yield
+			assert (yield led0.o) == 1
+			assert (yield swo.swo.o) == 1
+		# Now we get second 0 -> 1 -> 0 sequence
+		yield from self.trigger()
+		yield from self.step(halfBitPeriod - 4)
+		assert (yield led0.o) == 1
+		assert (yield swo.swo.o) == 1
+		yield from self.step(halfBitPeriod - 1)
+		assert (yield led0.o) == 1
+		assert (yield swo.swo.o) == 1
+		yield
+		assert (yield led0.o) == 1
+		assert (yield swo.swo.o) == 0
+		yield from self.step(halfBitPeriod - 2)
+		assert (yield led0.o) == 1
+		assert (yield swo.swo.o) == 0
+		yield from self.step(halfBitPeriod - 1)
+		assert (yield led0.o) == 1
+		assert (yield swo.swo.o) == 0
+		yield
+		assert (yield led0.o) == 1
+		assert (yield swo.swo.o) == 1
+		# Finally we get a '0' and the stop bit
+		yield from self.trigger()
+		yield from self.step(halfBitPeriod - 4)
+		assert (yield led0.o) == 1
+		assert (yield swo.swo.o) == 1
+		yield
+		assert (yield led0.o) == 1
+		assert (yield swo.swo.o) == 0
+		yield from self.step(halfBitPeriod - 2)
+		assert (yield led0.o) == 1
+		assert (yield swo.swo.o) == 0
+		yield from self.step(halfBitPeriod - 2)
+		assert (yield led0.o) == 1
+		assert (yield swo.swo.o) == 0
+		yield
+		# Check for the end of the stop bit and the re-idling of the state machine
 		assert (yield led0.o) == 0
+		assert (yield swo.swo.o) == 0
+		yield from self.step(halfBitPeriod - 2)
+		assert (yield led0.o) == 0
+		assert (yield swo.swo.o) == 0
+		yield from self.step(halfBitPeriod - 1)
+		assert (yield led0.o) == 0
+		assert (yield swo.swo.o) == 0
