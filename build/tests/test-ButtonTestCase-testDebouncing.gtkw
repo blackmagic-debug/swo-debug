@@ -1,0 +1,35 @@
+[*]
+[*] GTKWave Analyzer v3.3.118 (w)1999-2023 BSI
+[*] Fri Aug 16 11:44:18 2024
+[*]
+[dumpfile] "test-ButtonTestCase-testDebouncing.vcd"
+[dumpfile_mtime] "Fri Aug 16 11:43:59 2024"
+[dumpfile_size] 56864
+[savefile] "test-ButtonTestCase-testDebouncing.gtkw"
+[timestart] 0
+[size] 1920 1002
+[pos] -1 -1
+*-25.585119 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] bench.
+[sst_width] 234
+[signals_width] 205
+[sst_expanded] 1
+[sst_vpaned_height] 268
+@28
+bench.top.clk
+@200
+-Input and output
+@28
+bench.top.buttonIn
+bench.top.buttonValue
+@200
+-Internal State
+@28
+bench.top.buttonCurrent
+bench.top.buttonDebounce[2:0]
+@22
+bench.top.sampleCounter[7:0]
+@28
+bench.top.sampleTrigger
+[pattern_trace] 1
+[pattern_trace] 0

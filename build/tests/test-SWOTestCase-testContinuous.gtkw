@@ -1,0 +1,65 @@
+[*]
+[*] GTKWave Analyzer v3.3.118 (w)1999-2023 BSI
+[*] Fri Aug 16 22:38:31 2024
+[*]
+[dumpfile] "test-SWOTestCase-testContinuous.vcd"
+[dumpfile_mtime] "Fri Aug 16 22:36:26 2024"
+[dumpfile_size] 338545
+[savefile] "test-SWOTestCase-testContinuous.gtkw"
+[timestart] 0
+[size] 1920 1048
+[pos] -1921 -1
+*-26.000000 229871322 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] bench.
+[treeopen] bench.top.
+[sst_width] 234
+[signals_width] 260
+[sst_expanded] 1
+[sst_vpaned_height] 268
+@28
+bench.top.clk
+@200
+-I/Os
+@28
+bench.top.swo__swo__o
+bench.top.swo__trigger__i
+bench.top.button__i
+bench.top.led0__o
+bench.top.led1__o
+@200
+-Generator State
+@22
+bench.top.bit[4:0]
+@28
+bench.top.mode
+bench.top.encoderEnable
+bench.top.outputDelayed
+bench.top.outputRising
+bench.top.idle
+bench.top.starting
+bench.top.running
+@200
+-Mode State
+@28
+bench.top.modeButtonValue
+bench.top.modeButtonDelayed
+bench.top.modeSwitchTrigger
+bench.top.modeSwitchPending
+bench.top.modeSwitchDone
+@200
+-SWO State
+@28
+bench.top.swo_state
+bench.top.start
+bench.top.stop
+bench.top.bitIn
+bench.top.encoder.data
+bench.top.encoder.clock
+bench.top.encoder.manchester_state
+@24
+bench.top.encoder.halfBitPeriodCounter[5:0]
+@28
+bench.top.encoder.halfBitComplete
+bench.top.cycleComplete
+[pattern_trace] 1
+[pattern_trace] 0

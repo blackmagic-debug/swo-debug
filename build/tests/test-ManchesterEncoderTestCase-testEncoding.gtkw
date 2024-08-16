@@ -1,0 +1,45 @@
+[*]
+[*] GTKWave Analyzer v3.3.118 (w)1999-2023 BSI
+[*] Fri Aug 16 12:18:51 2024
+[*]
+[dumpfile] "test-ManchesterEncoderTestCase-testEncoding.vcd"
+[dumpfile_mtime] "Fri Aug 16 12:18:39 2024"
+[dumpfile_size] 22482
+[savefile] "test-ManchesterEncoderTestCase-testEncoding.gtkw"
+[timestart] 0
+[size] 1920 1048
+[pos] -1 -1
+*-24.000000 51990000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] bench.
+[sst_width] 234
+[signals_width] 260
+[sst_expanded] 1
+[sst_vpaned_height] 284
+@28
+bench.top.clk
+@200
+-Control Lines
+@28
+bench.top.start
+bench.top.stop
+bench.top.cycleComplete
+bench.top.halfBitComplete
+@200
+-Data
+@28
+bench.top.bitIn
+bench.top.manchesterOut
+@200
+-Encoder State
+@28
+bench.top.manchester_state
+bench.top.clock
+@22
+bench.top.halfBitPeriodCounter[5:0]
+@28
+bench.top.data
+bench.top.stopPending
+bench.top.delayedClock
+bench.top.cycleComplete$13
+[pattern_trace] 1
+[pattern_trace] 0
