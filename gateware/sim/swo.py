@@ -152,3 +152,45 @@ class SWOTestCase(ToriiTestCase):
 		for _ in range(4):
 			yield from self.step(halfBitPeriod)
 			assert (yield swo.swo.o) == 0
+
+	@ToriiTestCase.simulation
+	@ToriiTestCase.sync_domain(domain = 'sync')
+	def testTriggered(self):
+		halfBitPeriod = int((1 / self.clk_period('sync')) // 115200) // 2
+		# Make sure we are in triggered mode and then trigger the opening sequence
+		assert (yield led0.o) == 0
+		assert (yield led1.o) == 0
+		assert (yield swo.swo.o) == 0
+		yield
+		yield swo.trigger.i.eq(1)
+		yield
+		assert (yield led0.o) == 0
+		assert (yield swo.swo.o) == 0
+		yield
+		assert (yield led0.o) == 0
+		assert (yield swo.swo.o) == 0
+		yield from self.step(2)
+		# Check that the trigger succeeded and that the mode didn't change
+		assert (yield led0.o) == 1
+		assert (yield led1.o) == 0
+		assert (yield swo.swo.o) == 0
+		# Wait for the SWO clock to sync
+		yield from self.step((halfBitPeriod * 2) - 5)
+		assert (yield led0.o) == 1
+		assert (yield swo.swo.o) == 0
+		yield
+		assert (yield swo.swo.o) == 1
+		# Now check we get a complete start bit and the state machine then stops on the rising edge of the next ('1') bit
+		yield from self.step(halfBitPeriod - 2)
+		assert (yield led0.o) == 1
+		assert (yield swo.swo.o) == 1
+		yield
+		assert (yield swo.swo.o) == 0
+		yield from self.step(halfBitPeriod - 2)
+		assert (yield led0.o) == 1
+		assert (yield swo.swo.o) == 0
+		yield
+		assert (yield led0.o) == 1
+		assert (yield swo.swo.o) == 1
+		yield
+		assert (yield led0.o) == 0
