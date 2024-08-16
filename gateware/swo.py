@@ -54,6 +54,10 @@ class SWO(Elaboratable):
 		# And generate a pulse signal when the rising edge condition is detected
 		m.d.comb += outputRising.eq(~outputDelayed & encoder.manchesterOut)
 
+		# Delay the cycle completion signal a cycle
+		cycleComplete = Signal()
+		m.d.sync += cycleComplete.eq(encoder.cycleComplete)
+
 		# Start the state machine by going into an idle state and waiting for either a mode change or trigger signal
 		with m.FSM(name = 'swo') as fsm:
 			# Pull out the idle and running states
@@ -69,13 +73,15 @@ class SWO(Elaboratable):
 				m.next = 'TRANSMIT'
 			with m.State('TRANSMIT'):
 				# When the previous bit completes
-				with m.If(encoder.cycleComplete):
+				with m.If(cycleComplete):
 					# Queue the next, if there are more to go
 					with m.If(bit != 16):
 						m.d.comb += encoder.bitIn.eq(data.bit_select(bit, 1))
 						m.d.sync += bit.eq(bit + 1)
-					# Otherwise, do a stop bit
-					with m.Else():
+				# Use the non-delayed version for STOP generation
+				with m.Elif(encoder.cycleComplete):
+					# And we've output all the bits, do a stop bit
+					with m.If(bit == 16):
 						m.d.comb += encoder.stop.eq(1)
 						m.d.sync += bit.eq(0)
 						m.next = 'STOP'
