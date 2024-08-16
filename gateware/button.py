@@ -15,7 +15,7 @@ class Button(Elaboratable):
 		# Debounced button value out
 		self.buttonValue = Signal()
 
-	def elaborate(self, platform: Platform):
+	def elaborate(self, _: Platform):
 		m = Module()
 
 		# Input handling to get the button onto the sync domain
