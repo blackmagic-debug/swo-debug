@@ -27,7 +27,7 @@ class Button(Elaboratable):
 		sampleTrigger = Signal()
 
 		# Debounce register
-		buttonDebounce = Signal(3)
+		buttonDebounce = Signal(3, reset = 0)
 
 		# Sampling counter
 		sampleCounter = Signal(8)
