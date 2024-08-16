@@ -123,3 +123,32 @@ class SWOTestCase(ToriiTestCase):
 		yield
 		assert (yield swo.swo.o) == 0
 		assert (yield led0.o) == 1
+		# Now we've established that continuous operation works, check that we can switch back to triggered
+		# and that it only does so at the completion of a full cycle
+		yield button.i.eq(1)
+		yield from self.step((2**7) * 4)
+		yield
+		yield button.i.eq(0)
+		yield from self.step(((2**7) * 4) + 6)
+		assert (yield led0.o) == 1
+		assert (yield led1.o) == 1
+		yield from self.step((halfBitPeriod * 16) + 4)
+		assert (yield led0.o) == 1
+		assert (yield led1.o) == 1
+		yield
+		assert (yield led0.o) == 1
+		assert (yield led1.o) == 0
+		yield from self.step((halfBitPeriod * 2) - 3)
+		assert (yield led0.o) == 1
+		assert (yield led1.o) == 0
+		yield
+		assert (yield led0.o) == 0
+		assert (yield led1.o) == 0
+		assert (yield swo.swo.o) == 0
+		yield from self.step(halfBitPeriod - 6)
+		assert (yield swo.swo.o) == 0
+		# Make sure that the state machine has actually stopped and we don't get another start bit for a
+		# couple of bit cycles to be certain
+		for _ in range(4):
+			yield from self.step(halfBitPeriod)
+			assert (yield swo.swo.o) == 0
