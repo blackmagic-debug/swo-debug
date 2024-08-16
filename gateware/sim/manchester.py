@@ -17,7 +17,7 @@ class ManchesterEncoderTestCase(ToriiTestCase):
 	@ToriiTestCase.sync_domain(domain = 'sync')
 	def testEncoding(self):
 		dut = self.dut
-		halfBitPeriod = int(1 / (self.clk_period('sync') / 115200)) // 2
+		halfBitPeriod = int((1 / self.clk_period('sync')) // 115200) // 2
 		# Check that things start up in a sensible state
 		assert (yield dut.manchesterOut) == 0
 		yield Settle()
@@ -28,6 +28,7 @@ class ManchesterEncoderTestCase(ToriiTestCase):
 		yield dut.start.eq(1)
 		yield
 		yield dut.start.eq(0)
+		yield from self.wait_until_high(dut.manchesterOut, timeout = halfBitPeriod * 3)
 		yield from self.wait_until_high(dut.cycleComplete, timeout = halfBitPeriod * 3)
 		# Now load on a 1-bit to check it encodes properly
 		yield dut.bitIn.eq(1)
