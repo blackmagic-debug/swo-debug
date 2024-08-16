@@ -23,7 +23,7 @@ class SWO(Elaboratable):
 		interface = platform.request('swo', 0)
 
 		# Unpack the trigger and SWO pins/signals
-		trigger: Signal = interface.trigger.i
+		triggerIn: Signal = interface.trigger.i
 		# SWO output is on the second to last
 		swo: Signal = interface.swo.o
 
@@ -36,6 +36,8 @@ class SWO(Elaboratable):
 		bit = Signal(range(17), reset = 0)
 		mode = Signal(SWOMode, reset = SWOMode.triggered)
 
+		# Internal signals for generating SWO in conjunction with the trigger pulses
+		trigger = Signal()
 		encoderEnable = Signal()
 		outputDelayed = Signal()
 		outputRising = Signal()
@@ -123,6 +125,16 @@ class SWO(Elaboratable):
 			with m.Elif((mode == SWOMode.continuous) & stopping):
 				m.d.sync += mode.eq(SWOMode.triggered)
 				m.d.comb += modeSwitchDone.eq(1)
+
+		# Trigger generation signals
+		triggerState = Signal()
+		triggerStateDelayed = Signal()
+		m.d.sync += [
+			triggerState.eq(triggerIn),
+			triggerStateDelayed.eq(triggerState),
+		]
+		# Generate a trigger pulse whenever an edge occurs on the trigger signal
+		m.d.comb += trigger.eq(triggerState != triggerStateDelayed)
 
 		m.d.comb += [
 			# Plumb the Manchester-encoded SWO signal to the output pin
