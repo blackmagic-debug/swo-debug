@@ -41,8 +41,10 @@ class SWO(Elaboratable):
 		encoderEnable = Signal()
 		outputDelayed = Signal()
 		outputRising = Signal()
-		running = Signal()
 		idle = Signal()
+		wasIdle = Signal()
+		starting = Signal()
+		running = Signal()
 
 		# Instance the Manchester encoder block behind a clock gate so we can halt it on each rising edge
 		# on the output SWO signal for triggered mode
@@ -91,11 +93,17 @@ class SWO(Elaboratable):
 					# Go back to IDLE now we're done
 					m.next = 'IDLE'
 
+		m.d.sync += wasIdle.eq(idle)
+		with m.If(wasIdle & running):
+			m.d.sync += starting.eq(1)
+		with m.Elif(outputRising):
+			m.d.sync += starting.eq(0)
+
 		# Enable the clock to the encoder when it is either a) idle, or b) running and we get re-triggered
 		# Disable the clock when, while running, we see a rising edge on the output
 		with m.If(idle | (mode == SWOMode.continuous)):
 			m.d.sync += encoderEnable.eq(1)
-		with m.Elif(running & outputRising):
+		with m.Elif(running & outputRising & ~starting):
 			m.d.sync += encoderEnable.eq(0)
 		with m.Elif(running & trigger):
 			m.d.sync += encoderEnable.eq(1)
