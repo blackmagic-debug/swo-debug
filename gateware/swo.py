@@ -142,13 +142,20 @@ class SWO(Elaboratable):
 
 		# Trigger generation signals
 		triggerState = Signal()
-		triggerStateDelayed = Signal()
-		m.d.sync += [
-			triggerState.eq(triggerIn),
-			triggerStateDelayed.eq(triggerState),
-		]
-		# Generate a trigger pulse whenever an edge occurs on the trigger signal
-		m.d.comb += trigger.eq(triggerState != triggerStateDelayed)
+		m.d.sync += triggerState.eq(triggerIn)
+		# Look for 1us pulses on the trigger line
+		triggerTimer = Signal(range(16))
+		m.d.comb += trigger.eq(0)
+
+		# Count up while the trigger signal is high, till timer saturation
+		with m.If(triggerState & (triggerTimer != 15)):
+			m.d.sync += triggerTimer.eq(triggerTimer + 1)
+		# Once the signal goes back low, check if the timer is in the range for a ~1us pulse
+		with m.Elif(~triggerState):
+			with m.If((triggerTimer >= 11) & (triggerTimer <= 13)):
+				m.d.comb += trigger.eq(1)
+			# Reset the timer while trigger is low
+			m.d.sync += triggerTimer.eq(0)
 
 		m.d.comb += [
 			# Plumb the Manchester-encoded SWO signal to the output pin

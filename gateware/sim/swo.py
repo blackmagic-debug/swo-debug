@@ -153,17 +153,27 @@ class SWOTestCase(ToriiTestCase):
 			yield from self.step(halfBitPeriod)
 			assert (yield swo.swo.o) == 0
 
-	def trigger(self):
+	def trigger(self, *, leader = True):
+		yield
+		if leader:
+			assert (yield led0.o) == 0
+			# Ensure that the state machine is halted pending trigger
+			yield from self.step(5)
+		assert (yield led0.o) == 0
+		# Send the trigger signal high for 12 cycles
+		yield swo.trigger.i.eq(1)
+		yield from self.step(11)
+		# Then back low to complete the trigger
+		yield swo.trigger.i.eq(0)
+		assert (yield led0.o) == 0
 		yield
 		assert (yield led0.o) == 0
-		# Ensure that the state machine is halted pending trigger
-		yield from self.step(5)
-		assert (yield led0.o) == 0
-		# Proceed through the '1' bit and to the middle of the next '0'
-		yield swo.trigger.i.eq((yield ~swo.trigger.i))
 		yield
 		assert (yield led0.o) == 0
-		yield from self.step(2)
+		yield
+		if not leader:
+			assert (yield led0.o) == 0
+			yield
 		assert (yield led0.o) == 1
 
 	@ToriiTestCase.simulation
@@ -174,21 +184,12 @@ class SWOTestCase(ToriiTestCase):
 		assert (yield led0.o) == 0
 		assert (yield led1.o) == 0
 		assert (yield swo.swo.o) == 0
-		yield
-		yield swo.trigger.i.eq(1)
-		yield
-		assert (yield led0.o) == 0
-		assert (yield swo.swo.o) == 0
-		yield
-		assert (yield led0.o) == 0
-		assert (yield swo.swo.o) == 0
-		yield from self.step(2)
-		# Check that the trigger succeeded and that the mode didn't change
-		assert (yield led0.o) == 1
+		yield from self.trigger(leader = False)
+		# Check that the mode didn't change
 		assert (yield led1.o) == 0
 		assert (yield swo.swo.o) == 0
 		# Wait for the SWO clock to sync
-		yield from self.step((halfBitPeriod * 2) - 5)
+		yield from self.step((halfBitPeriod * 2) - 16)
 		assert (yield led0.o) == 1
 		assert (yield swo.swo.o) == 0
 		yield
@@ -208,7 +209,7 @@ class SWOTestCase(ToriiTestCase):
 		assert (yield swo.swo.o) == 1
 		# Next comes a 1 -> 0 sequence
 		yield from self.trigger()
-		yield from self.step(halfBitPeriod - 4)
+		yield from self.step(halfBitPeriod - 3)
 		assert (yield led0.o) == 1
 		assert (yield swo.swo.o) == 1
 		yield
@@ -225,7 +226,7 @@ class SWOTestCase(ToriiTestCase):
 		# There are now 6 '0' bits that follow
 		for bit in range(6):
 			yield from self.trigger()
-			yield from self.step(halfBitPeriod - 4)
+			yield from self.step(halfBitPeriod - 3)
 			assert (yield led0.o) == 1
 			assert (yield swo.swo.o) == 1
 			yield
@@ -239,7 +240,7 @@ class SWOTestCase(ToriiTestCase):
 			assert (yield swo.swo.o) == 1
 		# Now we get a 0 -> 1 -> 0 sequence
 		yield from self.trigger()
-		yield from self.step(halfBitPeriod - 4)
+		yield from self.step(halfBitPeriod - 3)
 		assert (yield led0.o) == 1
 		assert (yield swo.swo.o) == 1
 		yield from self.step(halfBitPeriod - 1)
@@ -260,7 +261,7 @@ class SWOTestCase(ToriiTestCase):
 		# Another 4 '0' bits follow after that
 		for bit in range(4):
 			yield from self.trigger()
-			yield from self.step(halfBitPeriod - 4)
+			yield from self.step(halfBitPeriod - 3)
 			assert (yield led0.o) == 1
 			assert (yield swo.swo.o) == 1
 			yield
@@ -274,7 +275,7 @@ class SWOTestCase(ToriiTestCase):
 			assert (yield swo.swo.o) == 1
 		# Now we get second 0 -> 1 -> 0 sequence
 		yield from self.trigger()
-		yield from self.step(halfBitPeriod - 4)
+		yield from self.step(halfBitPeriod - 3)
 		assert (yield led0.o) == 1
 		assert (yield swo.swo.o) == 1
 		yield from self.step(halfBitPeriod - 1)
@@ -294,7 +295,7 @@ class SWOTestCase(ToriiTestCase):
 		assert (yield swo.swo.o) == 1
 		# Finally we get a '0' and the stop bit
 		yield from self.trigger()
-		yield from self.step(halfBitPeriod - 4)
+		yield from self.step(halfBitPeriod - 3)
 		assert (yield led0.o) == 1
 		assert (yield swo.swo.o) == 1
 		yield
