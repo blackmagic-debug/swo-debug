@@ -1,21 +1,21 @@
 [*]
 [*] GTKWave Analyzer v3.3.118 (w)1999-2023 BSI
-[*] Fri Aug 16 22:38:31 2024
+[*] Sat Aug 17 13:26:52 2024
 [*]
 [dumpfile] "test-SWOTestCase-testTriggered.vcd"
-[dumpfile_mtime] "Fri Aug 16 22:36:27 2024"
-[dumpfile_size] 103766
+[dumpfile_mtime] "Sat Aug 17 13:25:41 2024"
+[dumpfile_size] 2833
 [savefile] "test-SWOTestCase-testTriggered.gtkw"
 [timestart] 0
-[size] 1920 1048
-[pos] -1921 -1
-*-26.000000 175288862 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[size] 1920 1002
+[pos] -1 -1
+*-18.000000 1208314 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] bench.
 [treeopen] bench.top.
 [sst_width] 234
 [signals_width] 260
 [sst_expanded] 1
-[sst_vpaned_height] 284
+[sst_vpaned_height] 566
 @28
 bench.top.clk
 @200
@@ -42,7 +42,9 @@ bench.top.running
 -Trigger State
 @28
 bench.top.triggerState
-bench.top.triggerStateDelayed
+@25
+bench.top.triggerTimer[3:0]
+@28
 bench.top.trigger
 @200
 -SWO State
