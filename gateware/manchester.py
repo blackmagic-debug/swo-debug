@@ -95,6 +95,10 @@ class ManchesterEncoder(Elaboratable):
 			with m.State('STOP_BIT'):
 				# Wait for a full bit cycle to re-enter idle to guarantee two half bit periods of low
 				with m.If(cycleComplete):
-					m.next = 'IDLE'
+					# Check if the user's asking us to immediately start again and if so, start a START bit
+					with m.If(self.start):
+						m.next = 'START_BIT'
+					with m.Else():
+						m.next = 'IDLE'
 
 		return m

@@ -90,8 +90,12 @@ class SWO(Elaboratable):
 			with m.State('STOP'):
 				# Wait for the stop bit to finish
 				with m.If(encoder.cycleComplete):
+					# If we're still in continuous mode, fire another transmission cycle immediately to reduce gaps
+					with m.If(mode == SWOMode.continuous):
+						m.next = 'START'
 					# Go back to IDLE now we're done
-					m.next = 'IDLE'
+					with m.Else():
+						m.next = 'IDLE'
 
 		m.d.sync += wasIdle.eq(idle)
 		with m.If(wasIdle & running):
