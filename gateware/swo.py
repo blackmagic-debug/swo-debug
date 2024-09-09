@@ -5,6 +5,7 @@ from torii import Elaboratable, Module, Signal, Const, EnableInserter, Shape
 from torii.build import Platform
 from enum import IntEnum, unique
 from .manchester import ManchesterEncoder
+from .itmStimulusROM import ITMStimulusROM
 from .button import Button
 
 __all__ = (
@@ -31,8 +32,11 @@ class SWO(Elaboratable):
 		ledRun = platform.request('led', 0).o
 		ledState = platform.request('led', 1).o
 
-		# 0x01 0x41 ('A' on ITM channel 0)
-		data = Const(0x4101, Shape(16, False))
+		# Small 64 entry ROM of ITM stimulus data that outputs 'A' through 'Z', 'a' through 'z'
+		# and '0' through '9' followed by '\r' and '\n'. All entries are SWIT packets for 1 byte
+		# outputs on ITM stimulus port 0 (ITM stream 0)
+		m.submodules.dataROM = dataROM = ITMStimulusROM()
+		data = Signal.like(dataROM.data)
 		bit = Signal(range(17), reset = 0)
 		mode = Signal(SWOMode, reset = SWOMode.triggered)
 
@@ -72,14 +76,23 @@ class SWO(Elaboratable):
 					m.next = 'START'
 			with m.State('START'):
 				m.d.comb += encoder.start.eq(1)
+				m.d.sync += [
+					# Grab the next ITM entry to send out
+					data.eq(dataROM.data),
+					# And step to the next entry in the ROM for the next time through
+					dataROM.entry.eq(dataROM.entry + 1),
+				]
 				m.next = 'TRANSMIT'
 			with m.State('TRANSMIT'):
 				# When the previous bit completes
 				with m.If(cycleComplete):
 					# Queue the next, if there are more to go
 					with m.If(bit != 16):
-						m.d.comb += encoder.bitIn.eq(data.bit_select(bit, 1))
-						m.d.sync += bit.eq(bit + 1)
+						m.d.comb += encoder.bitIn.eq(data[0])
+						m.d.sync += [
+							bit.eq(bit + 1),
+							data.eq(data.shift_right(1)),
+						]
 				# Use the non-delayed version for STOP generation
 				with m.Elif(encoder.cycleComplete):
 					# And we've output all the bits, do a stop bit
